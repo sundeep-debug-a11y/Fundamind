@@ -192,11 +192,7 @@ export default function App() {
 
         {/* Bottom Navigation */}
         {showBottomNav && (
-          <>
-            {/* Spacer to prevent overlap with fixed bottom nav */}
-            <div className="h-[72px] sm:h-[80px]" aria-hidden />
-            <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
-          </>
+          <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} />
         )}
       </div>
 

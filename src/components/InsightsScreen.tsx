@@ -2,7 +2,7 @@ import { Clock, CheckCircle2, Flame, Star, TrendingUp, BarChart3 } from "lucide-
 
 export function InsightsScreen() {
   return (
-    <div className="min-h-screen w-full bg-background pb-[96px] sm:pb-[112px] px-6 pt-6">
+    <div className="min-h-screen w-full bg-background px-6 pt-6">
       {/* Header */}
       <div className="mb-4">
         <h2 className="text-xl font-semibold">Insights</h2>
@@ -84,6 +84,9 @@ export function InsightsScreen() {
           ))}
         </div>
       </div>
+
+      {/* Small spacer to prevent overlap */}
+      <div className="h-16" aria-hidden="true" />
     </div>
   );
 }

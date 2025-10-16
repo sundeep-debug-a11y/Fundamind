@@ -95,7 +95,7 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
     "Insurance",
   ];
   return (
-    <div className="min-h-screen w-full bg-background pb-[96px] sm:pb-[112px]">
+    <div className="min-h-screen w-full bg-background">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-4 pt-12 pb-8 rounded-b-3xl shadow">
         <div className="mb-6">
@@ -322,6 +322,9 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Small spacer to prevent overlap */}
+      <div className="h-16" aria-hidden="true" />
     </div>
   );
 }

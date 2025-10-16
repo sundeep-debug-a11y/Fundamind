@@ -90,7 +90,7 @@ const allGames: Game[] = [
 
 export function GamesGrid({ onGameSelect }: GamesGridProps) {
   return (
-    <div className="min-h-screen w-full bg-background pb-[96px] sm:pb-[112px] pt-12 px-6">
+    <div className="min-h-screen w-full bg-background pt-12 px-4 sm:px-6">
       <div className="mb-4">
         <h2 className="mb-1 font-semibold">
           Learning Games
@@ -186,7 +186,7 @@ export function GamesGrid({ onGameSelect }: GamesGridProps) {
       </div>
 
       {/* Learning Path Teaser */}
-      <div className="mt-8 bg-gradient-to-r from-[#00A86B] via-[#006B5E] to-[#0D47A1] rounded-3xl p-6 text-white">
+      <div className="mt-8 mb-8 bg-gradient-to-r from-[#00A86B] via-[#006B5E] to-[#0D47A1] rounded-3xl p-8 text-white">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
             <TrendingUp className="w-6 h-6" />
@@ -211,6 +211,9 @@ export function GamesGrid({ onGameSelect }: GamesGridProps) {
           </Badge>
         </div>
       </div>
+
+      {/* Small spacer to prevent overlap */}
+      <div className="h-16" aria-hidden="true" />
     </div>
   );
 }

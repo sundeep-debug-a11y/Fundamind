@@ -71,7 +71,7 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
   const hours = now.getHours();
   const greeting = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
   return (
-    <div className="min-h-screen w-full bg-background pb-[96px] sm:pb-[112px]">
+    <div className="min-h-screen w-full bg-background pb-16">
       {/* Top Bar */}
       <div className="w-full bg-white border-b border-border px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -102,18 +102,18 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       </div>
 
       {/* Learning Stats Card */}
-      <div className="px-4 -mt-6 mb-6">
-        <div className="bg-card rounded-xl p-4 shadow-sm border border-border flex items-stretch gap-4">
-          <div className="flex items-center justify-center">
-            <ProgressRing progress={67} size={88} strokeWidth={7} color={"var(--primary)"}>
-              <div className="text-center">
-                <div className="text-sm font-semibold">2/3</div>
-                <div className="text-xs text-muted-foreground">Today</div>
-                <div className="text-[11px] text-muted-foreground mt-1">Almost there!</div>
+      <div className="px-4 mt-6 mb-6">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex items-center justify-center flex-none">
+            <ProgressRing progress={67} size={112} strokeWidth={7} color={"var(--primary)"}>
+              <div className="flex flex-col items-center text-center leading-tight max-w-[88px] mx-auto">
+                <div className="text-lg font-semibold">2/3</div>
+                <div className="text-sm text-muted-foreground">Today</div>
+                <div className="w-full text-sm text-muted-foreground mt-0.5 sm:mt-1 break-words">Almost there!</div>
               </div>
             </ProgressRing>
           </div>
-          <div className="flex-1 grid grid-cols-3 gap-2">
+          <div className="flex-1 grid grid-cols-3 gap-3 min-w-0">
             <div className="bg-muted rounded-xl p-3">
               <div className="text-xs text-muted-foreground">Streak</div>
               <div className="flex items-center gap-1 mt-1"><Flame className="w-4 h-4 text-alert" /><span className="text-sm font-medium">7 days</span></div>
@@ -126,8 +126,14 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
               <div className="text-xs text-muted-foreground">Level</div>
               <div className="flex items-center gap-1 mt-1"><TrendingUp className="w-4 h-4 text-info" /><span className="text-sm font-medium">8</span></div>
             </div>
-            <div className="col-span-3 mt-1">
-              <Button size="xl" className="w-full rounded-xl" onClick={() => onNavigate('learn')}>Continue Learning</Button>
+            <div className="col-span-3 mt-1 min-w-0 flex justify-start">
+              <Button
+                size="xl"
+                className="w-auto rounded-xl h-12 px-6 inline-flex items-center justify-center text-center whitespace-nowrap"
+                onClick={() => onNavigate('learn')}
+              >
+                <span className="whitespace-nowrap">Continue Learning</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -239,9 +245,9 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       </div>
 
       {/* Quick Learning Videos */}
-      <div className="px-4 mt-4 mb-6">
+      <div className="px-4 mt-4 mb-32 pb-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Quick Learning Videos</h3>
+          <h3 className="font-semibold">FinShort</h3>
           <button 
             onClick={onNavigateToVideos}
             className="text-primary text-sm flex items-center gap-1"
@@ -251,7 +257,7 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
           </button>
         </div>
         
-        <div className="flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
+        <div className="flex gap-3 overflow-x-auto pb-24 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
           {finShorts.map((short) => (
             <button
               key={short.id}

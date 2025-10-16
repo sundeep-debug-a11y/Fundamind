@@ -26,7 +26,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-background pb-[96px] sm:pb-[112px]">
+    <div className="min-h-screen w-full bg-background pb-[280px] sm:pb-[300px]">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-6 pt-12 pb-24 relative rounded-b-3xl shadow">
         <button onClick={onBack} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm mb-6">
