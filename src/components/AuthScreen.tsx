@@ -4,9 +4,10 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Eye, EyeOff, ArrowLeft, User, Mail, Phone, Lock, Calendar, Briefcase } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, User, Mail, Phone, Lock, Calendar, Briefcase, Sparkles } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface AuthScreenProps {
   onAuthSuccess: () => void;
@@ -35,6 +36,7 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   const [loginForm, setLoginForm] = useState<LoginForm>({
     email: "",
@@ -163,13 +165,17 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] flex flex-col">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#1A2332] via-[#006B5E] to-[#0D47A1] flex flex-col relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-20 right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+      <div className="absolute bottom-20 left-10 w-40 h-40 bg-[#F4B942]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "0.5s" }}></div>
+      
       {/* Header */}
-      <div className="flex items-center justify-between p-6">
+      <div className="flex items-center justify-between p-6 relative z-10">
         {onBack && (
           <button 
             onClick={onBack}
-            className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
+            className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm hover:bg-white/30 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
@@ -178,241 +184,287 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-6">
-        <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
-          <CardHeader className="text-center pb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#00A86B] to-[#0D47A1] rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-white">FM</span>
+      <div className="flex-1 flex items-center justify-center p-6 relative z-10">
+        <div className="w-full max-w-md">
+          {/* Logo Section */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl overflow-hidden">
+              {logoError ? (
+                <Sparkles className="w-8 h-8 text-[#00A86B]" />
+              ) : (
+                <ImageWithFallback 
+                  src="/fundamind-logo.png/WhatsApp%20Image%202025-10-16%20at%2018.30.14_2027928d.jpg" 
+                  alt="FUNDAMIND Logo" 
+                  className="w-full h-full object-contain p-1.5"
+                  onError={() => setLogoError(true)}
+                />
+              )}
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">Welcome to FundaMind</CardTitle>
-            <CardDescription className="text-gray-600">
-              {activeTab === "login" ? "Sign in to your account" : "Create your account to get started"}
-            </CardDescription>
-          </CardHeader>
+            <h1 className="text-white text-3xl font-bold mb-2">Welcome to FundaMind</h1>
+            <p className="text-white/80 text-sm">
+              {activeTab === "login" ? "Sign in to continue your financial journey" : "Start your financial education journey"}
+            </p>
+          </div>
 
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "signup")}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+          {/* Auth Card */}
+          <Card className="bg-white/95 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+            <CardContent className="p-8">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "login" | "signup")}>
+                <TabsList className="grid w-full grid-cols-2 mb-8 h-12 bg-gray-100 rounded-2xl p-1">
+                  <TabsTrigger value="login" className="rounded-xl font-medium">Login</TabsTrigger>
+                  <TabsTrigger value="signup" className="rounded-xl font-medium">Sign Up</TabsTrigger>
+                </TabsList>
 
               {/* Login Form */}
-              <TabsContent value="login" className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email" className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={loginForm.email}
-                    onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                    className={errors.email ? "border-red-500" : ""}
-                  />
-                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="login-password" className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    Password
-                  </Label>
-                  <div className="relative">
+              <TabsContent value="login" className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="login-email" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Mail className="w-4 h-4 text-gray-500" />
+                      Email Address
+                    </Label>
                     <Input
-                      id="login-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={loginForm.password}
-                      onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                      className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                      id="login-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={loginForm.email}
+                      onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                      className={`h-12 rounded-xl border-2 transition-colors ${errors.email ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    {errors.email && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.email}</p>}
                   </div>
-                  {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="login-password" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Lock className="w-4 h-4 text-gray-500" />
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="login-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={loginForm.password}
+                        onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                        className={`h-12 rounded-xl border-2 pr-12 transition-colors ${errors.password ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {errors.password && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.password}</p>}
+                  </div>
                 </div>
 
                 {errors.general && (
-                  <p className="text-sm text-red-500 text-center">{errors.general}</p>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-sm text-red-600 text-center flex items-center justify-center gap-2">
+                      <span>⚠️</span>{errors.general}
+                    </p>
+                  </div>
                 )}
 
                 <Button 
                   onClick={handleLogin} 
-                  className="w-full h-12 bg-gradient-to-r from-[#00A86B] to-[#0D47A1] hover:opacity-90"
+                  className="w-full h-14 bg-gradient-to-r from-[#00A86B] to-[#0D47A1] hover:from-[#00A86B]/90 hover:to-[#0D47A1]/90 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Signing in..." : "Sign In"}
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Signing in...
+                    </div>
+                  ) : (
+                    "Sign In"
+                  )}
                 </Button>
 
-                <div className="text-center text-sm text-gray-600">
-                  <button className="text-[#00A86B] hover:underline">
+                <div className="text-center">
+                  <button className="text-[#00A86B] hover:text-[#00A86B]/80 font-medium text-sm transition-colors">
                     Forgot your password?
                   </button>
                 </div>
               </TabsContent>
 
               {/* Sign Up Form */}
-              <TabsContent value="signup" className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      Name
-                    </Label>
-                    <Input
-                      id="signup-name"
-                      placeholder="Full name"
-                      value={signUpForm.name}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, name: e.target.value })}
-                      className={errors.name ? "border-red-500" : ""}
-                    />
-                    {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+              <TabsContent value="signup" className="space-y-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name" className="flex items-center gap-2 text-gray-700 font-medium">
+                        <User className="w-4 h-4 text-gray-500" />
+                        Name
+                      </Label>
+                      <Input
+                        id="signup-name"
+                        placeholder="Full name"
+                        value={signUpForm.name}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, name: e.target.value })}
+                        className={`h-12 rounded-xl border-2 transition-colors ${errors.name ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
+                      />
+                      {errors.name && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.name}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-age" className="flex items-center gap-2 text-gray-700 font-medium">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        Age
+                      </Label>
+                      <Input
+                        id="signup-age"
+                        type="number"
+                        placeholder="Age"
+                        value={signUpForm.age}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, age: e.target.value })}
+                        className={`h-12 rounded-xl border-2 transition-colors ${errors.age ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
+                      />
+                      {errors.age && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.age}</p>}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-age" className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Age
+                    <Label htmlFor="signup-email" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Mail className="w-4 h-4 text-gray-500" />
+                      Email Address
                     </Label>
                     <Input
-                      id="signup-age"
-                      type="number"
-                      placeholder="Age"
-                      value={signUpForm.age}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, age: e.target.value })}
-                      className={errors.age ? "border-red-500" : ""}
+                      id="signup-email"
+                      type="email"
+                      placeholder="Enter your email"
+                      value={signUpForm.email}
+                      onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
+                      className={`h-12 rounded-xl border-2 transition-colors ${errors.email ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
                     />
-                    {errors.age && <p className="text-xs text-red-500">{errors.age}</p>}
+                    {errors.email && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.email}</p>}
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email" className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={signUpForm.email}
-                    onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
-                    className={errors.email ? "border-red-500" : ""}
-                  />
-                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-phone" className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="signup-phone"
-                    type="tel"
-                    placeholder="10-digit phone number"
-                    value={signUpForm.phone}
-                    onChange={(e) => setSignUpForm({ ...signUpForm, phone: e.target.value })}
-                    className={errors.phone ? "border-red-500" : ""}
-                  />
-                  {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-designation" className="flex items-center gap-2">
-                    <Briefcase className="w-4 h-4" />
-                    Designation
-                  </Label>
-                  <Input
-                    id="signup-designation"
-                    placeholder="e.g., Student, Professional, etc."
-                    value={signUpForm.designation}
-                    onChange={(e) => setSignUpForm({ ...signUpForm, designation: e.target.value })}
-                    className={errors.designation ? "border-red-500" : ""}
-                  />
-                  {errors.designation && <p className="text-sm text-red-500">{errors.designation}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    Password
-                  </Label>
-                  <div className="relative">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-phone" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Phone className="w-4 h-4 text-gray-500" />
+                      Phone Number
+                    </Label>
                     <Input
-                      id="signup-password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Create a password"
-                      value={signUpForm.password}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
-                      className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+                      id="signup-phone"
+                      type="tel"
+                      placeholder="10-digit phone number"
+                      value={signUpForm.phone}
+                      maxLength={10}
+                      onChange={(e) => {
+                        // Only allow numeric input
+                        const value = e.target.value.replace(/\D/g, '');
+                        setSignUpForm({ ...signUpForm, phone: value });
+                      }}
+                      className={`h-12 rounded-xl border-2 transition-colors ${errors.phone ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    {errors.phone && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.phone}</p>}
                   </div>
-                  {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-retype-password" className="flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    Confirm Password
-                  </Label>
-                  <div className="relative">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-designation" className="flex items-center gap-2 text-gray-700 font-medium">
+                      <Briefcase className="w-4 h-4 text-gray-500" />
+                      Designation
+                    </Label>
                     <Input
-                      id="signup-retype-password"
-                      type={showRetypePassword ? "text" : "password"}
-                      placeholder="Confirm your password"
-                      value={signUpForm.retypePassword}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, retypePassword: e.target.value })}
-                      className={errors.retypePassword ? "border-red-500 pr-10" : "pr-10"}
+                      id="signup-designation"
+                      placeholder="e.g., Student, Professional, etc."
+                      value={signUpForm.designation}
+                      onChange={(e) => setSignUpForm({ ...signUpForm, designation: e.target.value })}
+                      className={`h-12 rounded-xl border-2 transition-colors ${errors.designation ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowRetypePassword(!showRetypePassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showRetypePassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    {errors.designation && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.designation}</p>}
                   </div>
-                  {errors.retypePassword && <p className="text-sm text-red-500">{errors.retypePassword}</p>}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password" className="flex items-center gap-2 text-gray-700 font-medium">
+                        <Lock className="w-4 h-4 text-gray-500" />
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="signup-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          value={signUpForm.password}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
+                          className={`h-12 rounded-xl border-2 pr-12 transition-colors ${errors.password ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      {errors.password && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.password}</p>}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-retype-password" className="flex items-center gap-2 text-gray-700 font-medium">
+                        <Lock className="w-4 h-4 text-gray-500" />
+                        Confirm Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="signup-retype-password"
+                          type={showRetypePassword ? "text" : "password"}
+                          placeholder="Confirm your password"
+                          value={signUpForm.retypePassword}
+                          onChange={(e) => setSignUpForm({ ...signUpForm, retypePassword: e.target.value })}
+                          className={`h-12 rounded-xl border-2 pr-12 transition-colors ${errors.retypePassword ? "border-red-500 focus:border-red-500" : "border-gray-200 focus:border-[#00A86B]"}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRetypePassword(!showRetypePassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          {showRetypePassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      {errors.retypePassword && <p className="text-sm text-red-500 flex items-center gap-1"><span>⚠️</span>{errors.retypePassword}</p>}
+                    </div>
+                  </div>
                 </div>
 
                 {errors.general && (
-                  <p className="text-sm text-red-500 text-center">{errors.general}</p>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-sm text-red-600 text-center flex items-center justify-center gap-2">
+                      <span>⚠️</span>{errors.general}
+                    </p>
+                  </div>
                 )}
 
                 <Button 
                   onClick={handleSignUp} 
-                  className="w-full h-12 bg-gradient-to-r from-[#00A86B] to-[#0D47A1] hover:opacity-90"
+                  className="w-full h-14 bg-gradient-to-r from-[#00A86B] to-[#0D47A1] hover:from-[#00A86B]/90 hover:to-[#0D47A1]/90 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating Account..." : "Create Account"}
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Creating Account...
+                    </div>
+                  ) : (
+                    "Create Account"
+                  )}
                 </Button>
 
-                <div className="text-center text-xs text-gray-600">
+                <div className="text-center text-xs text-gray-500">
                   By signing up, you agree to our{" "}
-                  <button className="text-[#00A86B] hover:underline">Terms of Service</button>
+                  <button className="text-[#00A86B] hover:text-[#00A86B]/80 font-medium transition-colors">Terms of Service</button>
                   {" "}and{" "}
-                  <button className="text-[#00A86B] hover:underline">Privacy Policy</button>
+                  <button className="text-[#00A86B] hover:text-[#00A86B]/80 font-medium transition-colors">Privacy Policy</button>
                 </div>
               </TabsContent>
             </Tabs>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

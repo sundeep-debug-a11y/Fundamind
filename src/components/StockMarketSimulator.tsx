@@ -1,10 +1,13 @@
-import { ArrowLeft, TrendingUp, TrendingDown, Plus, Minus, Search } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, TrendingUp, TrendingDown, Plus, Minus, Search, RefreshCw, DollarSign } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Input } from "./ui/input";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useMultipleStocks, useStockSearch } from "../hooks/useStockData";
+import { POPULAR_US_STOCKS } from "../services/stockApi";
+import { StockQuote } from "../services/stockApi";
 import {
   Dialog,
   DialogContent,
@@ -17,41 +20,42 @@ interface StockMarketSimulatorProps {
   onBack: () => void;
 }
 
-interface Stock {
-  id: string;
-  symbol: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercent: number;
-}
-
 interface Holding {
-  stock: Stock;
+  stock: StockQuote;
   quantity: number;
   avgPrice: number;
 }
 
-const stocks: Stock[] = [
-  { id: "1", symbol: "RELIANCE", name: "Reliance Industries", price: 2456.75, change: 45.30, changePercent: 1.88 },
-  { id: "2", symbol: "TCS", name: "Tata Consultancy Services", price: 3678.50, change: -23.15, changePercent: -0.63 },
-  { id: "3", symbol: "INFY", name: "Infosys", price: 1534.20, change: 18.90, changePercent: 1.25 },
-  { id: "4", symbol: "HDFC", name: "HDFC Bank", price: 1645.80, change: -12.40, changePercent: -0.75 },
-  { id: "5", symbol: "ICICI", name: "ICICI Bank", price: 987.35, change: 8.55, changePercent: 0.87 },
-  { id: "6", symbol: "BHARTI", name: "Bharti Airtel", price: 876.45, change: 21.30, changePercent: 2.49 },
-];
-
 export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
   const { t } = useLanguage();
-  const [portfolio, setPortfolio] = useState<Holding[]>([
-    { stock: stocks[0], quantity: 5, avgPrice: 2420.50 },
-    { stock: stocks[2], quantity: 10, avgPrice: 1510.00 },
-  ]);
-  const [cash, setCash] = useState(50000);
-  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
+  
+  // Real-time stock data - Using popular US stocks for better API reliability
+  const [watchlist] = useState(POPULAR_US_STOCKS.slice(0, 5)); // Reduced to 5 to avoid rate limits
+  const { data: stocks, loading: stocksLoading, error: stocksError, refetch } = useMultipleStocks(watchlist);
+  const { results: searchResults, loading: searching, search } = useStockSearch();
+  
+  // Portfolio state
+  const [portfolio, setPortfolio] = useState<Holding[]>([]);
+  const [cash, setCash] = useState(100000); // Starting with $100,000
+  const [selectedStock, setSelectedStock] = useState<StockQuote | null>(null);
   const [tradeQuantity, setTradeQuantity] = useState(1);
   const [tradeType, setTradeType] = useState<"buy" | "sell">("buy");
+  const [showTradeDialog, setShowTradeDialog] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("market");
 
+  // Initialize portfolio with some demo holdings when stocks load
+  useEffect(() => {
+    if (stocks.length > 0 && portfolio.length === 0) {
+      const initialHoldings: Holding[] = [
+        { stock: stocks[0], quantity: 5, avgPrice: stocks[0].price * 0.95 },
+        { stock: stocks[1], quantity: 10, avgPrice: stocks[1].price * 0.98 },
+      ];
+      setPortfolio(initialHoldings);
+    }
+  }, [stocks]);
+
+  // Portfolio calculations
   const portfolioValue = portfolio.reduce((sum, holding) => 
     sum + (holding.stock.price * holding.quantity), 0
   );
@@ -63,160 +67,271 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
   const handleTrade = () => {
     if (!selectedStock) return;
 
+    const totalCost = selectedStock.price * tradeQuantity;
+
     if (tradeType === "buy") {
-      const cost = selectedStock.price * tradeQuantity;
-      if (cost <= cash) {
-        const existingHolding = portfolio.find(h => h.stock.id === selectedStock.id);
+      if (cash >= totalCost) {
+        setCash(cash - totalCost);
+        
+        const existingHolding = portfolio.find(h => h.stock.symbol === selectedStock.symbol);
         if (existingHolding) {
-          const newAvgPrice = ((existingHolding.avgPrice * existingHolding.quantity) + cost) / 
-                             (existingHolding.quantity + tradeQuantity);
+          const newQuantity = existingHolding.quantity + tradeQuantity;
+          const newAvgPrice = ((existingHolding.avgPrice * existingHolding.quantity) + totalCost) / newQuantity;
+          
           setPortfolio(portfolio.map(h => 
-            h.stock.id === selectedStock.id 
-              ? { ...h, quantity: h.quantity + tradeQuantity, avgPrice: newAvgPrice }
+            h.stock.symbol === selectedStock.symbol 
+              ? { ...h, quantity: newQuantity, avgPrice: newAvgPrice }
               : h
           ));
         } else {
-          setPortfolio([...portfolio, { stock: selectedStock, quantity: tradeQuantity, avgPrice: selectedStock.price }]);
+          setPortfolio([...portfolio, { 
+            stock: selectedStock, 
+            quantity: tradeQuantity, 
+            avgPrice: selectedStock.price 
+          }]);
         }
-        setCash(cash - cost);
-        setSelectedStock(null);
       }
     } else {
-      const holding = portfolio.find(h => h.stock.id === selectedStock.id);
+      const holding = portfolio.find(h => h.stock.symbol === selectedStock.symbol);
       if (holding && holding.quantity >= tradeQuantity) {
-        const proceeds = selectedStock.price * tradeQuantity;
+        setCash(cash + totalCost);
+        
         if (holding.quantity === tradeQuantity) {
-          setPortfolio(portfolio.filter(h => h.stock.id !== selectedStock.id));
+          setPortfolio(portfolio.filter(h => h.stock.symbol !== selectedStock.symbol));
         } else {
           setPortfolio(portfolio.map(h => 
-            h.stock.id === selectedStock.id 
+            h.stock.symbol === selectedStock.symbol 
               ? { ...h, quantity: h.quantity - tradeQuantity }
               : h
           ));
         }
-        setCash(cash + proceeds);
-        setSelectedStock(null);
       }
+    }
+
+    setShowTradeDialog(false);
+    setSelectedStock(null);
+    setTradeQuantity(1);
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      search(searchQuery);
     }
   };
 
+  const openTradeDialog = (stock: StockQuote, type: "buy" | "sell") => {
+    setSelectedStock(stock);
+    setTradeType(type);
+    setTradeQuantity(1);
+    setShowTradeDialog(true);
+  };
+
   return (
-    <div className="min-h-screen w-full bg-background pb-20">
+    <div className="min-h-screen w-full bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-500 to-indigo-600 px-6 pt-12 pb-6">
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={onBack} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <div>
-            <h2 className="text-white font-semibold">{t('stockMarket')}</h2>
-            <p className="text-white/80 text-sm">Virtual Trading Simulator</p>
+      <div className="bg-gradient-to-br from-[#1A2332] via-[#006B5E] to-[#0D47A1] text-white p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onBack}
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">Stock Market Simulator</h1>
           </div>
+          <Button 
+            onClick={refetch} 
+            disabled={stocksLoading}
+            variant="ghost"
+            size="sm"
+            className="text-white hover:bg-white/20"
+          >
+            <RefreshCw className={`w-4 h-4 ${stocksLoading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
         {/* Portfolio Summary */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-            <p className="text-white/80 text-sm mb-1">{t('totalCoins')}</p>
-            <p className="text-white text-xl font-semibold">
-              ₹{totalValue.toLocaleString('en-IN')}
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-            <p className="text-white/80 text-sm mb-1">P&L</p>
-            <p className={`text-xl ${totalPL >= 0 ? 'text-success' : 'text-destructive'} font-semibold`}>
-              {totalPL >= 0 ? '+' : ''}₹{totalPL.toLocaleString('en-IN')}
-            </p>
-          </div>
-        </div>
-
-        {/* Market Index */}
-        <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-white/80 text-sm">NIFTY 50</p>
-              <p className="text-white font-semibold">21,456.80</p>
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                <DollarSign className="w-4 h-4" />
+              </div>
+              <span className="text-sm opacity-90 font-medium">Cash</span>
             </div>
-            <div className="text-right">
-              <Badge className="bg-success/20 text-success border-0">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                +1.24%
-              </Badge>
+            <p className="text-xl font-bold">${(cash/1000).toFixed(0)}K</p>
+          </div>
+          <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 bg-white/20 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <span className="text-sm opacity-90 font-medium">Portfolio</span>
             </div>
+            <p className="text-xl font-bold">${(portfolioValue/1000).toFixed(0)}K</p>
+          </div>
+          <div className="bg-white/15 rounded-2xl p-4 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${totalPL >= 0 ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                {totalPL >= 0 ? <TrendingUp className="w-4 h-4 text-green-300" /> : <TrendingDown className="w-4 h-4 text-red-300" />}
+              </div>
+              <span className="text-sm opacity-90 font-medium">P&L</span>
+            </div>
+            <p className={`text-xl font-bold ${totalPL >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+              {totalPL >= 0 ? '+' : ''}${Math.abs(totalPL) >= 1000 ? (totalPL/1000).toFixed(1) + 'K' : totalPL.toFixed(0)}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="px-6 py-4">
-        <Tabs defaultValue="portfolio" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-6">
-            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-            <TabsTrigger value="stocks">Stocks</TabsTrigger>
-            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+      {/* Content */}
+      <div className="p-6">
+        {stocksError && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+            <p className="text-yellow-800">⚠️ {stocksError}</p>
+            <p className="text-sm text-yellow-600 mt-1">Showing demo data. Check your API key or try again later.</p>
+          </div>
+        )}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-8 h-12 bg-muted/50 rounded-2xl p-1 backdrop-blur-sm">
+            <TabsTrigger value="market" className="rounded-xl font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Market
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="rounded-xl font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Portfolio
+            </TabsTrigger>
+            <TabsTrigger value="search" className="rounded-xl font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Search
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="portfolio" className="space-y-3">
-            <div className="bg-card rounded-2xl p-4 border border-border mb-4">
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">Available Cash</span>
-                <span className="text-primary font-semibold">
-                  ₹{cash.toLocaleString('en-IN')}
-                </span>
+          {/* Market Tab */}
+          <TabsContent value="market" className="space-y-4">
+            {stocksLoading ? (
+              <div className="text-center py-8">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+                <p>Loading real-time stock data...</p>
               </div>
-            </div>
+            ) : (
+              <div className="grid gap-4">
+                {stocks.map((stock) => (
+                  <div key={stock.symbol} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">{stock.symbol.slice(0, 2)}</span>
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-lg text-gray-900">{stock.symbol}</h3>
+                            <p className="text-sm text-gray-500">Stock</p>
+                          </div>
+                        </div>
+                        <p className="text-2xl font-bold text-gray-900">${stock.price.toFixed(2)}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className={`flex items-center gap-1 mb-3 px-3 py-1 rounded-full text-sm font-medium ${
+                          stock.change >= 0 
+                            ? 'bg-green-50 text-green-700' 
+                            : 'bg-red-50 text-red-700'
+                        }`}>
+                          {stock.change >= 0 ? (
+                            <TrendingUp className="w-4 h-4" />
+                          ) : (
+                            <TrendingDown className="w-4 h-4" />
+                          )}
+                          <span>
+                            {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} 
+                            ({stock.changePercent.toFixed(1)}%)
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
+                      <div className="text-xs text-gray-500">
+                        <span>Volume: {(stock.volume/1000000).toFixed(1)}M</span>
+                        <span className="ml-4">Updated: {stock.lastUpdated}</span>
+                      </div>
+                      <Button 
+                        onClick={() => openTradeDialog(stock, "buy")}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl font-semibold shadow-sm"
+                        size="sm"
+                      >
+                        Buy Stock
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio" className="space-y-4">
             {portfolio.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No holdings yet</p>
-                <p className="text-sm text-muted-foreground mt-2">Start by buying some stocks!</p>
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">No holdings yet</p>
+                <p className="text-sm text-gray-400 mt-1">Buy some stocks to get started!</p>
               </div>
             ) : (
               portfolio.map((holding) => {
                 const currentValue = holding.stock.price * holding.quantity;
-                const invested = holding.avgPrice * holding.quantity;
-                const pl = currentValue - invested;
-                const plPercent = ((pl / invested) * 100);
+                const totalCost = holding.avgPrice * holding.quantity;
+                const pl = currentValue - totalCost;
+                const plPercent = (pl / totalCost) * 100;
 
                 return (
-                  <div key={holding.stock.id} className="bg-card rounded-2xl p-4 border border-border">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h4>{holding.stock.symbol}</h4>
-                        <p className="text-sm text-muted-foreground">{holding.stock.name}</p>
+                  <div key={holding.stock.symbol} className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                          <span className="text-white font-bold">{holding.stock.symbol.slice(0, 2)}</span>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-900">{holding.stock.symbol}</h3>
+                          <p className="text-sm text-gray-500">
+                            {holding.quantity} shares @ ${holding.avgPrice.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <Button
-                        size="sm"
+                      <div className="text-right">
+                        <p className="text-xl font-bold text-gray-900">
+                          ${currentValue >= 1000 ? (currentValue/1000).toFixed(1) + 'K' : currentValue.toFixed(2)}
+                        </p>
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${
+                          pl >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                        }`}>
+                          {pl >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                          {pl >= 0 ? '+' : ''}${Math.abs(pl) >= 1000 ? (pl/1000).toFixed(1) + 'K' : pl.toFixed(2)} ({plPercent.toFixed(1)}%)
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button 
+                        onClick={() => openTradeDialog(holding.stock, "buy")}
                         variant="outline"
-                        onClick={() => {
-                          setSelectedStock(holding.stock);
-                          setTradeType("sell");
-                          setTradeQuantity(1);
-                        }}
-                        className="rounded-lg"
+                        size="sm"
+                        className="rounded-xl border-green-200 text-green-700 hover:bg-green-50 font-medium"
                       >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Buy More
+                      </Button>
+                      <Button 
+                        onClick={() => openTradeDialog(holding.stock, "sell")}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl border-red-200 text-red-700 hover:bg-red-50 font-medium"
+                      >
+                        <Minus className="w-4 h-4 mr-2" />
                         Sell
                       </Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Qty</p>
-                        <p>{holding.quantity}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Avg Price</p>
-                        <p>₹{holding.avgPrice.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Current</p>
-                        <p>₹{holding.stock.price.toFixed(2)}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">P&L</p>
-                        <p className={pl >= 0 ? 'text-success' : 'text-destructive'}>
-                          {pl >= 0 ? '+' : ''}₹{pl.toFixed(2)} ({plPercent.toFixed(2)}%)
-                        </p>
-                      </div>
                     </div>
                   </div>
                 );
@@ -224,146 +339,109 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
             )}
           </TabsContent>
 
-          <TabsContent value="stocks" className="space-y-3">
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder={t('search') + ' stocks...'}
-                  className="w-full h-12 pl-10 pr-4 bg-card border border-border rounded-xl outline-none focus:border-primary"
-                />
-              </div>
+          {/* Search Tab */}
+          <TabsContent value="search" className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search stocks (e.g., AAPL, GOOGL, TSLA)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button onClick={handleSearch} disabled={searching}>
+                {searching ? 'Searching...' : 'Search'}
+              </Button>
             </div>
 
-            {stocks.map((stock) => (
-              <div key={stock.id} className="bg-card rounded-2xl p-4 border border-border">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h4>{stock.symbol}</h4>
-                    <p className="text-sm text-muted-foreground">{stock.name}</p>
+            {searchResults.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold">Search Results:</h3>
+                {searchResults.slice(0, 10).map((result) => (
+                  <div key={result.symbol} className="bg-card border border-border rounded-xl p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-bold">{result.symbol}</h4>
+                        <p className="text-sm text-muted-foreground">{result.name}</p>
+                        <p className="text-xs text-muted-foreground">{result.region} • {result.currency}</p>
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          // Add to watchlist functionality could go here
+                          setSearchQuery(result.symbol);
+                          handleSearch();
+                        }}
+                        size="sm"
+                      >
+                        View
+                      </Button>
+                    </div>
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90 text-white rounded-lg"
-                    onClick={() => {
-                      setSelectedStock(stock);
-                      setTradeType("buy");
-                      setTradeQuantity(1);
-                    }}
-                  >
-                    Buy
-                  </Button>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-lg font-semibold">
-                      ₹{stock.price.toFixed(2)}
-                    </p>
-                  </div>
-                  <Badge 
-                    variant="outline"
-                    className={`${
-                      stock.change >= 0 
-                        ? 'border-success text-success' 
-                        : 'border-destructive text-destructive'
-                    }`}
-                  >
-                    {stock.change >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
-                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                  </Badge>
-                </div>
+                ))}
               </div>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="watchlist" className="text-center py-12">
-            <p className="text-muted-foreground">No stocks in watchlist</p>
-            <p className="text-sm text-muted-foreground mt-2">Add stocks to track them here</p>
+            )}
           </TabsContent>
         </Tabs>
       </div>
 
       {/* Trade Dialog */}
-      <Dialog open={selectedStock !== null} onOpenChange={() => setSelectedStock(null)}>
-        <DialogContent className="max-w-sm">
+      <Dialog open={showTradeDialog} onOpenChange={setShowTradeDialog}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>{tradeType === "buy" ? "Buy" : "Sell"} {selectedStock?.symbol}</DialogTitle>
-            <DialogDescription>{selectedStock?.name}</DialogDescription>
+            <DialogTitle>
+              {tradeType === "buy" ? "Buy" : "Sell"} {selectedStock?.symbol}
+            </DialogTitle>
+            <DialogDescription>
+              Current price: ${selectedStock?.price.toFixed(2)}
+            </DialogDescription>
           </DialogHeader>
           
-          {selectedStock && (
-            <div className="space-y-4">
-              <div className="bg-muted rounded-xl p-4">
-                <p className="text-sm text-muted-foreground mb-1">Current Price</p>
-                <p className="text-2xl font-semibold">
-                  ₹{selectedStock.price.toFixed(2)}
-                </p>
-              </div>
-
-              <div>
-                <label className="block mb-2 text-sm">Quantity</label>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setTradeQuantity(Math.max(1, tradeQuantity - 1))}
-                    className="rounded-lg"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <input
-                    type="number"
-                    value={tradeQuantity}
-                    onChange={(e) => setTradeQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="flex-1 h-12 text-center bg-card border border-border rounded-xl outline-none focus:border-primary"
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setTradeQuantity(tradeQuantity + 1)}
-                    className="rounded-lg"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="bg-muted rounded-xl p-4">
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm">Total Amount</span>
-                  <span className="font-semibold">
-                    ₹{(selectedStock.price * tradeQuantity).toFixed(2)}
-                  </span>
-                </div>
-                {tradeType === "buy" && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Available Cash</span>
-                    <span className={cash >= selectedStock.price * tradeQuantity ? 'text-success' : 'text-destructive'}>
-                      ₹{cash.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setSelectedStock(null)} className="flex-1 rounded-xl">
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleTrade}
-                  disabled={tradeType === "buy" && cash < selectedStock.price * tradeQuantity}
-                  className={`flex-1 rounded-xl ${
-                    tradeType === "buy" 
-                      ? "bg-primary hover:bg-primary/90" 
-                      : "bg-destructive hover:bg-destructive/90"
-                  } text-white`}
-                >
-                  {tradeType === "buy" ? "Buy Now" : "Sell Now"}
-                </Button>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Quantity</label>
+              <Input
+                type="number"
+                min="1"
+                value={tradeQuantity}
+                onChange={(e) => setTradeQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+              />
             </div>
-          )}
+            
+            <div className="bg-muted p-4 rounded-lg">
+              <div className="flex justify-between">
+                <span>Total Cost:</span>
+                <span className="font-bold">
+                  ${selectedStock ? (selectedStock.price * tradeQuantity).toFixed(2) : '0.00'}
+                </span>
+              </div>
+              {tradeType === "buy" && (
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>Available Cash:</span>
+                  <span>${cash >= 1000 ? (cash/1000).toFixed(0) + 'K' : cash.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowTradeDialog(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleTrade}
+                className="flex-1"
+                disabled={
+                  tradeType === "buy" 
+                    ? (selectedStock ? cash < selectedStock.price * tradeQuantity : true)
+                    : false
+                }
+              >
+                {tradeType === "buy" ? "Buy" : "Sell"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
