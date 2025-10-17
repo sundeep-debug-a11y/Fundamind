@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Eye, EyeOff, ArrowLeft, User, Mail, Phone, Lock, Calendar, Briefcase } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useSupabaseAuth } from "../contexts/SupabaseAuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface AuthScreenProps {
   onAuthSuccess: () => void;
@@ -30,7 +30,7 @@ interface LoginForm {
 
 export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
   const { t } = useLanguage();
-  const { login: supaLogin, signup: supaSignup } = useSupabaseAuth();
+  const { login, signup } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [showRetypePassword, setShowRetypePassword] = useState(false);
@@ -130,7 +130,7 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
     setIsLoading(true);
     try {
-      await supaLogin(loginForm.email, loginForm.password);
+      await login(loginForm.email, loginForm.password);
       onAuthSuccess();
     } catch (error) {
       console.error("Login error:", error);
@@ -145,7 +145,7 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
 
     setIsLoading(true);
     try {
-      await supaSignup({
+      await signup({
         name: signUpForm.name,
         email: signUpForm.email,
         phone: signUpForm.phone,
@@ -153,9 +153,7 @@ export function AuthScreen({ onAuthSuccess, onBack }: AuthScreenProps) {
         age: parseInt(signUpForm.age, 10),
         designation: signUpForm.designation,
       });
-      // Supabase often requires email confirmation; show friendly message and switch to login
-      setActiveTab("login");
-      setErrors({ general: "Account created. Please check your email to confirm, then sign in." });
+      onAuthSuccess();
     } catch (error) {
       console.error("Sign up error:", error);
       setErrors({ general: error instanceof Error ? error.message : "Failed to create account. Please try again." });

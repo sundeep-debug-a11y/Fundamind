@@ -15,7 +15,7 @@ import { LearnScreen } from "./components/LearnScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { ApiTest } from "./components/ApiTest";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import { SupabaseAuthProvider } from "./contexts/SupabaseAuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 type Screen = 
   | "splash"
@@ -205,10 +205,10 @@ function App() {
 // Wrap App with Providers
 export default function AppWithProviders() {
   return (
-    <SupabaseAuthProvider>
+    <AuthProvider>
       <LanguageProvider>
         <App />
       </LanguageProvider>
-    </SupabaseAuthProvider>
+    </AuthProvider>
   );
 }

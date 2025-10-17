@@ -1,13 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged, 
-  User as FirebaseUser
-} from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
 
 interface User {
   id: string;
@@ -40,6 +31,7 @@ interface SignUpData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Simple localStorage-based authentication (no external services required)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,45 +43,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuthState = async () => {
     try {
-      // Listen for authentication state changes
-      onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-        if (firebaseUser) {
-          try {
-            // Get additional user data from Firestore
-            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-            if (userDoc.exists()) {
-              const userData = userDoc.data();
-              setUser({
-                id: firebaseUser.uid,
-                name: firebaseUser.displayName || userData.name || '',
-                email: firebaseUser.email || '',
-                phone: userData.phone || '',
-                age: userData.age || 0,
-                designation: userData.designation || '',
-                createdAt: userData.createdAt?.toDate() || new Date()
-              });
-            } else {
-              // If no Firestore doc exists, create basic user from Firebase auth
-              setUser({
-                id: firebaseUser.uid,
-                name: firebaseUser.displayName || '',
-                email: firebaseUser.email || '',
-                phone: '',
-                age: 0,
-                designation: '',
-                createdAt: new Date()
-              });
-            }
-          } catch (error) {
-            console.error('Error fetching user data:', error);
-          }
-        } else {
-          setUser(null);
-        }
-        setIsLoading(false);
-      });
+      // Check localStorage for existing user
+      const savedUser = localStorage.getItem('fundamind_user');
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        setUser({
+          ...userData,
+          createdAt: new Date(userData.createdAt)
+        });
+      }
     } catch (error) {
       console.error('Auth check error:', error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -98,27 +63,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // User data will be set automatically by onAuthStateChanged listener
-      console.log('Login successful:', userCredential.user.email);
+      // Check if user exists in localStorage
+      const users = JSON.parse(localStorage.getItem('fundamind_users') || '[]');
+      const existingUser = users.find((u: any) => u.email === email && u.password === password);
+      
+      if (!existingUser) {
+        throw new Error('Invalid email or password');
+      }
+      
+      // Set user (excluding password)
+      const { password: _, ...userWithoutPassword } = existingUser;
+      setUser({
+        ...userWithoutPassword,
+        createdAt: new Date(userWithoutPassword.createdAt)
+      });
+      
+      localStorage.setItem('fundamind_user', JSON.stringify(userWithoutPassword));
+      console.log('Login successful:', email);
       
     } catch (error: any) {
       console.error('Login error:', error);
-      let errorMessage = 'Login failed';
-      
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many failed attempts. Please try again later';
-      }
-      
-      throw new Error(errorMessage);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -128,47 +96,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Create user with Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Store additional user data in Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      // Check if user already exists
+      const users = JSON.parse(localStorage.getItem('fundamind_users') || '[]');
+      const existingUser = users.find((u: any) => u.email === userData.email);
+      
+      if (existingUser) {
+        throw new Error('An account with this email already exists');
+      }
+      
+      // Create new user
+      const newUser: User & { password: string } = {
+        id: Date.now().toString(),
         name: userData.name,
+        email: userData.email,
         phone: userData.phone,
         age: userData.age,
         designation: userData.designation,
         createdAt: new Date(),
-        email: userData.email
-      });
+        password: userData.password
+      };
       
-      console.log('Signup successful:', userCredential.user.email);
+      // Save to users list
+      users.push(newUser);
+      localStorage.setItem('fundamind_users', JSON.stringify(users));
+      
+      // Set current user (excluding password)
+      const { password: _, ...userWithoutPassword } = newUser;
+      setUser(userWithoutPassword);
+      localStorage.setItem('fundamind_user', JSON.stringify(userWithoutPassword));
+      
+      console.log('Signup successful:', userData.email);
       
     } catch (error: any) {
       console.error('Signup error:', error);
-      let errorMessage = 'Failed to create account';
-      
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'An account with this email already exists';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Please choose a stronger password';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      }
-      
-      throw new Error(errorMessage);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = async () => {
+  const logout = () => {
     try {
-      // Sign out with Firebase
-      await signOut(auth);
-      
-      // User state will be cleared automatically by onAuthStateChanged listener
+      setUser(null);
+      localStorage.removeItem('fundamind_user');
       console.log('Logout successful');
-      
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -178,17 +152,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (!user) throw new Error('No user logged in');
       
-      // TODO: Implement actual profile update API call
-      // Example with Firebase:
-      // await updateDoc(doc(db, 'users', user.id), userData);
-      
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
       localStorage.setItem('fundamind_user', JSON.stringify(updatedUser));
       
-    } catch (error) {
+      // Also update in users list
+      const users = JSON.parse(localStorage.getItem('fundamind_users') || '[]');
+      const userIndex = users.findIndex((u: any) => u.id === user.id);
+      if (userIndex !== -1) {
+        users[userIndex] = { ...users[userIndex], ...userData };
+        localStorage.setItem('fundamind_users', JSON.stringify(users));
+      }
+      
+      console.log('Profile updated successfully');
+    } catch (error: any) {
       console.error('Profile update error:', error);
-      throw new Error('Failed to update profile');
+      throw error;
     }
   };
 

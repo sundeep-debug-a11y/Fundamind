@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import { ProgressRing } from "./ProgressRing";
 import { useState } from "react";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useSupabaseAuth } from "../contexts/SupabaseAuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 interface HomeDashboardProps {
   onNavigateToGame: (game: string) => void;
@@ -67,7 +67,7 @@ const finShorts = [
 
 export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate }: HomeDashboardProps) {
   const { t } = useLanguage();
-  const { user } = useSupabaseAuth();
+  const { user } = useAuth();
   const [activeChip, setActiveChip] = useState('challenge');
   const [showAchievement, setShowAchievement] = useState(true);
   const now = new Date();

@@ -4,7 +4,7 @@ import { Switch } from "./ui/switch";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useSupabaseAuth } from "../contexts/SupabaseAuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
 
 interface ProfileSettingsProps {
@@ -13,7 +13,7 @@ interface ProfileSettingsProps {
 
 export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   const { t, language } = useLanguage();
-  const { user, logout } = useSupabaseAuth();
+  const { user, logout } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [audioInstructions, setAudioInstructions] = useState(false);
