@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { ArrowRight, Shield } from "lucide-react";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface PhoneAuthScreenProps {
   onComplete: () => void;
@@ -44,8 +45,12 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
     <div className="h-screen w-full bg-background flex flex-col">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full p-6">
         <div className="mt-12 mb-8">
-          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
-            <Shield className="w-8 h-8 text-primary" />
+          <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+            <ImageWithFallback 
+              src="/fundamind-logo.png/WhatsApp%20Image%202025-10-16%20at%2018.30.14_2027928d.jpg" 
+              alt="FundaMind Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <h2 className="text-3xl mb-2 font-semibold">
             {showOtp ? "Verify OTP" : "Welcome to FundaMind"}

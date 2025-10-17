@@ -26,16 +26,16 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-background pb-[280px] sm:pb-[300px]">
+    <div className="min-h-screen w-full bg-background pb-16">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-6 pt-12 pb-24 relative rounded-b-3xl shadow">
+      <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-6 pt-20 pb-16 relative shadow">
         <button onClick={onBack} className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm mb-6">
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
       </div>
 
       {/* Profile Card */}
-      <div className="px-6 -mt-16 mb-6">
+      <div className="px-6 -mt-8 mb-6">
         <div className="bg-card rounded-3xl p-6 shadow-lg border border-border">
           <div className="flex items-center gap-4 mb-6">
             <Avatar className="w-20 h-20 border-4 border-white shadow-md">

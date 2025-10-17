@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Shield, ArrowRight } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface AuthenticationScreenProps {
   onComplete: () => void;
@@ -42,8 +43,12 @@ export function AuthenticationScreen({ onComplete }: AuthenticationScreenProps) 
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-br from-[#00A86B] to-[#006B5E] rounded-3xl shadow-lg flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 bg-gradient-to-br from-[#00A86B] to-[#006B5E] rounded-3xl shadow-lg flex items-center justify-center mx-auto mb-6 overflow-hidden">
+              <ImageWithFallback 
+                src="/fundamind-logo.png/WhatsApp%20Image%202025-10-16%20at%2018.30.14_2027928d.jpg" 
+                alt="FundaMind Logo" 
+                className="w-16 h-16 object-contain"
+              />
             </div>
             <h2 className="text-3xl mb-2 text-gray-900">
               {showOTP ? 'Enter OTP' : 'Welcome Back'}

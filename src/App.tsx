@@ -12,7 +12,6 @@ import { ProfileSettings } from "./components/ProfileSettings";
 import { GamesGrid } from "./components/GamesGrid";
 import { LearnScreen } from "./components/LearnScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
-import { Toaster } from "./components/ui/sonner";
 import { ApiTest } from "./components/ApiTest";
 
 type Screen = 
@@ -196,7 +195,6 @@ export default function App() {
         )}
       </div>
 
-      <Toaster />
     </div>
   );
 }
