@@ -233,8 +233,8 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
                         </div>
                         <p className="text-2xl font-bold text-gray-900">${stock.price.toFixed(2)}</p>
                       </div>
-                      <div className="text-right">
-                        <div className={`flex items-center gap-1 mb-3 px-3 py-1 rounded-full text-sm font-medium ${
+                      <div className="text-right flex flex-col items-end gap-2">
+                        <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${
                           stock.change >= 0 
                             ? 'bg-green-50 text-green-700' 
                             : 'bg-red-50 text-red-700'
@@ -249,20 +249,25 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
                             ({stock.changePercent.toFixed(1)}%)
                           </span>
                         </div>
+                        <Button 
+                          onClick={() => openTradeDialog(stock, "buy")}
+                          className="!bg-gradient-to-r !from-green-600 !to-green-700 hover:!from-green-700 hover:!to-green-800 !rounded-xl !font-semibold !shadow-sm !text-white !border-0 !border-none"
+                          size="sm"
+                          style={{
+                            background: 'linear-gradient(to right, #059669, #047857)',
+                            color: 'white',
+                            border: 'none'
+                          }}
+                        >
+                          Buy Stock
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
-                      <div className="text-xs text-gray-500">
+                    <div className="bg-gray-50 rounded-xl p-3">
+                      <div className="text-xs text-gray-500 text-center">
                         <span>Volume: {(stock.volume/1000000).toFixed(1)}M</span>
                         <span className="ml-4">Updated: {stock.lastUpdated}</span>
                       </div>
-                      <Button 
-                        onClick={() => openTradeDialog(stock, "buy")}
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl font-semibold shadow-sm"
-                        size="sm"
-                      >
-                        Buy Stock
-                      </Button>
                     </div>
                   </div>
                 ))}

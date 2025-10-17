@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { useState } from "react";
 
 interface ProfileSettingsProps {
@@ -14,7 +15,7 @@ interface ProfileSettingsProps {
 export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   const { t, language } = useLanguage();
   const { user, logout } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme, isDark } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [audioInstructions, setAudioInstructions] = useState(false);
   
@@ -28,8 +29,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   };
   
   const handleDarkModeToggle = (checked: boolean) => {
-    setDarkMode(checked);
-    document.documentElement.classList.toggle('dark', checked);
+    setTheme(checked ? 'dark' : 'light');
   };
   
   const achievements = [
@@ -166,7 +166,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
                 <p className="text-xs text-muted-foreground">Switch theme</p>
               </div>
             </div>
-            <Switch checked={darkMode} onCheckedChange={handleDarkModeToggle} />
+            <Switch checked={isDark} onCheckedChange={handleDarkModeToggle} />
           </div>
 
           <button className="flex items-center justify-between p-4 w-full text-left hover:bg-muted/50 transition-colors">

@@ -8,12 +8,12 @@ interface LanguageSelectionProps {
 }
 
 const languages = [
-  { code: "en" as Language, name: "English", native: "English", icon: "🇬🇧" },
+  { code: "en" as Language, name: "English", native: "English", icon: "🇺🇸" },
   { code: "hi" as Language, name: "Hindi", native: "हिन्दी", icon: "🇮🇳" },
   { code: "ta" as Language, name: "Tamil", native: "தமிழ்", icon: "🇮🇳" },
   { code: "te" as Language, name: "Telugu", native: "తెలుగు", icon: "🇮🇳" },
   { code: "bn" as Language, name: "Bengali", native: "বাংলা", icon: "🇮🇳" },
-  { code: "mr" as Language, name: "Marathi", native: "मराठी", icon: "🇮🇳" },
+  { code: "mr" as Language, name: "Marathi", native: "मराठী", icon: "🇮🇳" },
 ];
 
 export function LanguageSelection({ onComplete }: LanguageSelectionProps) {
@@ -25,10 +25,10 @@ export function LanguageSelection({ onComplete }: LanguageSelectionProps) {
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
         <div className="text-center mt-12 mb-8">
           <h2 className="text-3xl mb-2 font-semibold">
-            {t('chooseYourLanguage')}
+            Choose Your Language
           </h2>
           <p className="text-muted-foreground">
-            अपनी भाषा चुनें | உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்
+            Select your preferred language for the app
           </p>
         </div>
 
@@ -44,7 +44,9 @@ export function LanguageSelection({ onComplete }: LanguageSelectionProps) {
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-4xl leading-none select-none">{lang.icon}</span>
+                <div className="text-4xl leading-none select-none flex items-center justify-center w-12 h-12 bg-gray-50 rounded-xl">
+                  {lang.icon}
+                </div>
                 <div className="min-w-0">
                   <div className="font-semibold truncate">{lang.name}</div>
                   <div className="text-xs text-muted-foreground truncate">{lang.native}</div>

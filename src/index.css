@@ -2779,14 +2779,13 @@
   --jade-green: #00A86B;
   --deep-teal: #006B5E;
   --gold: #FFB84D;
-  --sidebar: oklch(.985 0 0);
-  --sidebar-foreground: oklch(.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(.985 0 0);
-  --sidebar-accent: oklch(.97 0 0);
-  --sidebar-accent-foreground: oklch(.205 0 0);
-  --sidebar-border: oklch(.922 0 0);
-  --sidebar-ring: oklch(.708 0 0);
+  --cool-gray: #F8F9FB;
+  --deep-navy: #1A2332;
+  --slate: #64748B;
+  --error: #EF4444;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --info: #3B82F6;
 }
 
 .dark {

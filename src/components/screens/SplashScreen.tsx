@@ -26,8 +26,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
         </div>
         
-        <h1 className="text-white text-5xl mb-4 tracking-tight">ProspEra</h1>
-        <p className="text-white/90 text-xl mb-12">Empowering India's Financial Future</p>
+        <h1 className="text-white text-5xl mb-4 tracking-tight">FundaMind</h1>
+        <p className="text-white/90 text-xl mb-12">Learn Money</p>
         
         <div className="flex items-center justify-center gap-2 text-white/80">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse" />

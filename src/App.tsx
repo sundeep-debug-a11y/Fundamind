@@ -16,6 +16,7 @@ import { BottomNavigation } from "./components/BottomNavigation";
 import { ApiTest } from "./components/ApiTest";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 type Screen = 
   | "splash"
@@ -205,10 +206,12 @@ function App() {
 // Wrap App with Providers
 export default function AppWithProviders() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <App />
-      </LanguageProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <App />
+        </LanguageProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

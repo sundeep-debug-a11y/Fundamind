@@ -1,4 +1,4 @@
-import { Bell, Coins, Flame, TrendingUp, Lock, Play, ChevronRight, CalendarDays, Star, Target, BarChart3, X } from "lucide-react";
+import { Bell, Flame, Trophy, Target, ChevronRight, Play, BookOpen, TrendingUp, Users, Award, Clock, Star, Zap, Lock, Coins, CalendarDays, BarChart3 } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
@@ -91,7 +91,7 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
           <div className="w-6 h-6 overflow-hidden">
             <ImageWithFallback src="/fundamind-logo.png/WhatsApp%20Image%202025-10-16%20at%2018.30.14_2027928d.jpg" alt="FUNDAMIND" className="w-full h-full object-contain" />
           </div>
-          <span className="text-sm font-semibold">FUNDAMIND</span>
+          <span className="text-sm font-semibold">FundaMind</span>
         </div>
         <div className="flex items-center gap-3">
           <button className="relative">
@@ -106,7 +106,7 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       </div>
 
       {/* Welcome Section */}
-      <div className="relative z-0 bg-gradient-to-br from-[#1A2332] to-[#006B5E] px-4 pt-8 pb-8 rounded-b-3xl shadow overflow-hidden">
+      <div className="relative z-0 bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-4 pt-8 pb-8 rounded-b-3xl shadow overflow-hidden">
         <div className="mb-2 text-white">
           <p className="text-sm opacity-90">{dateStr}</p>
           <h2 className="text-2xl mt-1 font-semibold">{greeting}, {firstName}</h2>
@@ -133,20 +133,11 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
             </div>
             <div className="bg-muted rounded-xl p-3">
               <div className="text-xs text-muted-foreground">{t('points')}</div>
-              <div className="flex items-center gap-1 mt-1"><Star className="w-4 h-4 text-accent" /><span className="text-sm font-medium">2,450</span></div>
+              <div className="flex items-center gap-1 mt-1"><Trophy className="w-4 h-4 text-primary" /><span className="text-sm font-medium">2,450</span></div>
             </div>
             <div className="bg-muted rounded-xl p-3">
               <div className="text-xs text-muted-foreground">{t('level')}</div>
-              <div className="flex items-center gap-1 mt-1"><TrendingUp className="w-4 h-4 text-info" /><span className="text-sm font-medium">8</span></div>
-            </div>
-            <div className="col-span-3 mt-1 min-w-0 flex justify-start">
-              <Button
-                size="xl"
-                className="w-auto rounded-xl h-12 px-6 inline-flex items-center justify-center text-center whitespace-nowrap"
-                onClick={() => onNavigate('learn')}
-              >
-                <span className="whitespace-nowrap">{t('startLearning')}</span>
-              </Button>
+              <div className="flex items-center gap-1 mt-1"><Star className="w-4 h-4 text-alert" /><span className="text-sm font-medium">12</span></div>
             </div>
           </div>
         </div>
@@ -164,34 +155,10 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
           ].map((chip) => (
             <button
               key={chip.id}
-              onClick={() => {
-                setActiveChip(chip.id);
-                switch (chip.id) {
-                  case 'challenge':
-                    onNavigate('games');
-                    break;
-                  case 'stocks':
-                    onNavigate('stock-market');
-                    break;
-                  case 'budget':
-                    onNavigate('budget-bazaar');
-                    break;
-                  case 'ca':
-                    onNavigate('learn');
-                    break;
-                  case 'insights':
-                    onNavigate('insights');
-                    break;
-                }
-              }}
-              aria-pressed={activeChip === chip.id}
-              className={`flex items-center gap-2 px-3 h-9 rounded-full text-sm whitespace-nowrap active:scale-95 transition border ${
-                activeChip === chip.id
-                  ? 'bg-accent text-accent-foreground border-transparent'
-                  : 'bg-card text-foreground border-border'
-              }`}
+              className={`text-sm py-2 px-3 rounded-full ${activeChip === chip.id ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'} flex items-center gap-1`}
+              onClick={() => setActiveChip(chip.id)}
             >
-              <chip.icon className={`w-4 h-4 ${activeChip === chip.id ? 'text-accent-foreground' : 'text-foreground'}`} />
+              <chip.icon className="w-4 h-4" />
               <span>{chip.label}</span>
             </button>
           ))}

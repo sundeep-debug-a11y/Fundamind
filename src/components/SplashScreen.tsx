@@ -50,7 +50,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </h1>
         
         <p className="text-white/90 text-center max-w-xs mt-2">
-          {t('startLearning')}
+          {t('Learn Money')}
         </p>
         
         <div className="mt-12 flex gap-1">
