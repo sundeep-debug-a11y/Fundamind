@@ -1,32 +1,40 @@
 import { Clock, CheckCircle2, Flame, Star, TrendingUp, BarChart3, Award, Target, BookOpen } from "lucide-react";
+import { useEffect } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export function InsightsScreen() {
+  const { t } = useLanguage();
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
-    <div className="min-h-screen w-full bg-background">
+    <div className="min-h-screen w-full bg-background pb-20">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-6 pt-12 pb-8 rounded-b-3xl shadow">
         <div className="mb-6">
           <h2 className="text-white mb-2 font-semibold text-2xl">
-            Your Insights
+            {t('yourInsights')}
           </h2>
-          <p className="text-white/80">Track your learning journey and achievements</p>
+          <p className="text-white/80">{t('trackLearningJourney')}</p>
         </div>
 
         {/* Quick Stats in Header */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <Clock className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Total Time</p>
+            <p className="text-white text-xs">{t('totalTime')}</p>
             <p className="text-white font-semibold">12h 34m</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <Flame className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Streak</p>
-            <p className="text-white font-semibold">14 days</p>
+            <p className="text-white text-xs">{t('streak')}</p>
+            <p className="text-white font-semibold">14 {t('days')}</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <Star className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Points</p>
+            <p className="text-white text-xs">{t('points')}</p>
             <p className="text-white font-semibold">4,850</p>
           </div>
         </div>
@@ -38,34 +46,34 @@ export function InsightsScreen() {
           <div className="bg-card border border-border rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium">Modules Completed</span>
+              <span className="text-sm font-medium">{t('modulesCompleted')}</span>
             </div>
             <div className="text-2xl font-bold text-foreground mb-1">23</div>
-            <p className="text-xs text-muted-foreground">+3 this week</p>
+            <p className="text-xs text-muted-foreground">+3 {t('thisWeek')}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Target className="w-5 h-5 text-blue-500" />
-              <span className="text-sm font-medium">Accuracy Rate</span>
+              <span className="text-sm font-medium">{t('accuracyRate')}</span>
             </div>
             <div className="text-2xl font-bold text-foreground mb-1">87%</div>
-            <p className="text-xs text-muted-foreground">+5% improvement</p>
+            <p className="text-xs text-muted-foreground">+5% {t('improvement')}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="w-5 h-5 text-purple-500" />
-              <span className="text-sm font-medium">Topics Mastered</span>
+              <span className="text-sm font-medium">{t('topicsMastered')}</span>
             </div>
             <div className="text-2xl font-bold text-foreground mb-1">12</div>
-            <p className="text-xs text-muted-foreground">out of 18 total</p>
+            <p className="text-xs text-muted-foreground">{t('outOfTotal')} 18</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <Award className="w-5 h-5 text-yellow-500" />
-              <span className="text-sm font-medium">Certificates</span>
+              <span className="text-sm font-medium">{t('certificates')}</span>
             </div>
             <div className="text-2xl font-bold text-foreground mb-1">3</div>
-            <p className="text-xs text-muted-foreground">2 pending</p>
+            <p className="text-xs text-muted-foreground">2 {t('pending')}</p>
           </div>
         </div>
 
@@ -74,12 +82,12 @@ export function InsightsScreen() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold">Weekly Activity</h3>
+              <h3 className="font-semibold">{t('weeklyActivity')}</h3>
             </div>
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">This Week</span>
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">{t('thisWeek')}</span>
           </div>
           <div className="h-32 bg-gradient-to-t from-primary/10 to-primary/5 rounded-xl flex items-end justify-center">
-            <div className="text-sm text-muted-foreground">Interactive chart coming soon</div>
+            <div className="text-sm text-muted-foreground">{t('interactiveChartComingSoon')}</div>
           </div>
         </div>
 
@@ -87,14 +95,14 @@ export function InsightsScreen() {
         <div className="bg-card border border-border rounded-2xl p-5 mb-6">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold">Subject Performance</h3>
+            <h3 className="font-semibold">{t('subjectPerformance')}</h3>
           </div>
           <div className="space-y-4">
             {[
-              { name: "Budgeting", score: 72, color: "bg-green-500" },
-              { name: "Investing", score: 58, color: "bg-blue-500" },
-              { name: "Taxation", score: 83, color: "bg-purple-500" },
-              { name: "Insurance", score: 65, color: "bg-orange-500" }
+              { name: t("budgeting"), score: 72, color: "bg-green-500" },
+              { name: t("investing"), score: 58, color: "bg-blue-500" },
+              { name: t("taxation"), score: 83, color: "bg-purple-500" },
+              { name: t("insurance"), score: 65, color: "bg-orange-500" }
             ].map((subject) => (
               <div key={subject.name} className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -116,12 +124,12 @@ export function InsightsScreen() {
         <div className="mb-6">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <Award className="w-5 h-5 text-primary" />
-            Recent Achievements
+            {t('recentAchievements')}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { name: "Budget Master", icon: "🏆", date: "2 days ago" },
-              { name: "7-Day Streak", icon: "🔥", date: "1 week ago" },
+              { name: t("budgetBazaar"), icon: "🏆", date: "2 days ago" },
+              { name: "7-Day " + t("streak"), icon: "🔥", date: "1 week ago" },
               { name: "Quiz Champion", icon: "🎯", date: "3 days ago" },
               { name: "Fast Learner", icon: "⚡", date: "5 days ago" }
             ].map((achievement) => (

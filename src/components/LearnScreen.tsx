@@ -3,6 +3,7 @@ import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface LearnScreenProps {
   onBack: () => void;
@@ -83,6 +84,7 @@ const quickLessons = [
 ];
 
 export function LearnScreen({ onBack }: LearnScreenProps) {
+  const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("All");
   const [contentType, setContentType] = useState<"Courses" | "Videos" | "Articles">("Courses");
   const categories = [
@@ -100,26 +102,26 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
       <div className="bg-gradient-to-br from-[#00A86B] via-[#006B5E] to-[#0D47A1] px-4 pt-12 pb-8 rounded-b-3xl shadow">
         <div className="mb-6">
           <h2 className="text-white mb-2 font-semibold">
-            Learning Center
+            {t('learningCenter')}
           </h2>
-          <p className="text-white/80">Master financial concepts at your pace</p>
+          <p className="text-white/80">{t('masterFinancialConcepts')}</p>
         </div>
 
         {/* Learning Stats */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <BookOpen className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Lessons</p>
+            <p className="text-white text-xs">{t('lessons')}</p>
             <p className="text-white font-semibold">32/50</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <Clock className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Hours</p>
+            <p className="text-white text-xs">{t('hours')}</p>
             <p className="text-white font-semibold">12.5</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3 border border-white/20">
             <Award className="w-5 h-5 text-white mb-1" />
-            <p className="text-white text-xs">Certificates</p>
+            <p className="text-white text-xs">{t('certificates')}</p>
             <p className="text-white font-semibold">3</p>
           </div>
         </div>
@@ -153,7 +155,7 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search courses, videos, articles..."
+              placeholder={`${t('search')} courses, videos, articles...`}
               className="w-full h-11 pl-10 pr-4 bg-card border border-border rounded-xl outline-none focus:border-primary"
             />
           </div>
@@ -164,7 +166,7 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
 
         {/* Content Type Toggle */}
         <div className="flex gap-2 mb-4">
-          {["Courses", "Videos", "Articles"].map((type) => (
+          {[t('courses'), "Videos", "Articles"].map((type) => (
             <button
               key={type}
               onClick={() => setContentType(type as any)}
@@ -184,8 +186,8 @@ export function LearnScreen({ onBack }: LearnScreenProps) {
       <div className="px-4 py-2">
         <Tabs defaultValue="quick" className="w-full">
           <TabsList className="w-full grid grid-cols-2 mb-6">
-            <TabsTrigger value="quick">Quick Lessons</TabsTrigger>
-            <TabsTrigger value="ca">CA Syllabus</TabsTrigger>
+            <TabsTrigger value="quick">{t('quickLessons')}</TabsTrigger>
+            <TabsTrigger value="ca">{t('caSyllabus')}</TabsTrigger>
           </TabsList>
 
           {/* Quick Lessons */}

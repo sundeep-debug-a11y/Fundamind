@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { SplashScreen } from "./components/SplashScreen";
 import { LanguageSelection } from "./components/LanguageSelection";
 import { OnboardingCarousel } from "./components/OnboardingCarousel";
+import { AuthScreen } from "./components/AuthScreen";
 import { PhoneAuthScreen } from "./components/PhoneAuthScreen";
 import { HomeDashboard } from "./components/HomeDashboard";
 import { BudgetBazaar } from "./components/BudgetBazaar";
@@ -13,6 +14,8 @@ import { GamesGrid } from "./components/GamesGrid";
 import { LearnScreen } from "./components/LearnScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { ApiTest } from "./components/ApiTest";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { SupabaseAuthProvider } from "./contexts/SupabaseAuthContext";
 
 type Screen = 
   | "splash"
@@ -31,7 +34,7 @@ type Screen =
   | "profile"
   | "api-test";
 
-export default function App() {
+function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash");
   const [activeTab, setActiveTab] = useState("home");
 
@@ -109,7 +112,7 @@ export default function App() {
         )}
 
         {currentScreen === "auth" && (
-          <PhoneAuthScreen onComplete={() => setCurrentScreen("home")} />
+          <AuthScreen onAuthSuccess={() => setCurrentScreen("home")} />
         )}
 
         {currentScreen === "home" && (
@@ -196,5 +199,16 @@ export default function App() {
       </div>
 
     </div>
+  );
+}
+
+// Wrap App with Providers
+export default function AppWithProviders() {
+  return (
+    <SupabaseAuthProvider>
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
+    </SupabaseAuthProvider>
   );
 }

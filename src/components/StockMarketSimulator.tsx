@@ -1,8 +1,10 @@
-import { ArrowLeft, TrendingUp, TrendingDown, Search, Plus, Minus } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Plus, Minus, Search } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Input } from "./ui/input";
+import { useLanguage } from "../contexts/LanguageContext";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +42,7 @@ const stocks: Stock[] = [
 ];
 
 export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
+  const { t } = useLanguage();
   const [portfolio, setPortfolio] = useState<Holding[]>([
     { stock: stocks[0], quantity: 5, avgPrice: 2420.50 },
     { stock: stocks[2], quantity: 10, avgPrice: 1510.00 },
@@ -106,7 +109,7 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
           <div>
-            <h2 className="text-white font-semibold">Stock Market</h2>
+            <h2 className="text-white font-semibold">{t('stockMarket')}</h2>
             <p className="text-white/80 text-sm">Virtual Trading Simulator</p>
           </div>
         </div>
@@ -114,7 +117,7 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
         {/* Portfolio Summary */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
-            <p className="text-white/80 text-sm mb-1">Total Value</p>
+            <p className="text-white/80 text-sm mb-1">{t('totalCoins')}</p>
             <p className="text-white text-xl font-semibold">
               ₹{totalValue.toLocaleString('en-IN')}
             </p>
@@ -227,7 +230,7 @@ export function StockMarketSimulator({ onBack }: StockMarketSimulatorProps) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search stocks..."
+                  placeholder={t('search') + ' stocks...'}
                   className="w-full h-12 pl-10 pr-4 bg-card border border-border rounded-xl outline-none focus:border-primary"
                 />
               </div>

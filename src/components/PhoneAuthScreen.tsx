@@ -4,12 +4,14 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { ArrowRight, Shield } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface PhoneAuthScreenProps {
   onComplete: () => void;
 }
 
 export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
+  const { t } = useLanguage();
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [showOtp, setShowOtp] = useState(false);
@@ -53,19 +55,19 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
             />
           </div>
           <h2 className="text-3xl mb-2 font-semibold">
-            {showOtp ? "Verify OTP" : "Welcome to FundaMind"}
+            {showOtp ? t('verifyOtp') : t('welcomeToFundamind')}
           </h2>
           <p className="text-muted-foreground">
             {showOtp 
-              ? `Enter the 6-digit code sent to +91 ${phone}`
-              : "Enter your mobile number to get started"}
+              ? `${t('enterOtpSent')} ${phone}`
+              : t('enterMobileNumber')}
           </p>
         </div>
 
         {!showOtp ? (
           <div className="space-y-6">
             <div>
-              <label className="block mb-2 text-sm">Mobile Number</label>
+              <label className="block mb-2 text-sm">{t('mobileNumber')}</label>
               <div className="flex gap-2">
                 <div className="w-20 h-14 bg-card border border-border rounded-xl flex items-center justify-center">
                   <span className="text-muted-foreground">+91</span>
@@ -89,9 +91,7 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
                 className="mt-1"
               />
               <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
-                I agree to the{" "}
-                <span className="text-primary">Terms & Conditions</span> and{" "}
-                <span className="text-primary">Privacy Policy</span>
+                {t('agreeToTerms')}
               </label>
             </div>
 
@@ -100,14 +100,14 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
               disabled={phone.length !== 10 || !agreed}
               className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl"
             >
-              Send OTP
+{t('sendOtp')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>
         ) : (
           <div className="space-y-6">
             <div>
-              <label className="block mb-4 text-sm">Enter OTP</label>
+              <label className="block mb-4 text-sm">{t('enterOtp')}</label>
               <div className="flex gap-2 justify-between">
                 {otp.map((digit, index) => (
                   <input
@@ -124,7 +124,7 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
             </div>
 
             <button className="text-primary text-sm">
-              Didn't receive code? Resend OTP
+              {t('didntReceiveCode')}
             </button>
 
             <Button
@@ -132,7 +132,7 @@ export function PhoneAuthScreen({ onComplete }: PhoneAuthScreenProps) {
               disabled={otp.some(digit => digit === "")}
               className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl"
             >
-              Verify & Continue
+{t('verifyAndContinue')}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </div>

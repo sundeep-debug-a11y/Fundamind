@@ -1,29 +1,31 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useLanguage, Language } from "../contexts/LanguageContext";
 
 interface LanguageSelectionProps {
   onComplete: () => void;
 }
 
 const languages = [
-  { code: "en", name: "English", native: "English", icon: "🇬🇧" },
-  { code: "hi", name: "Hindi", native: "हिन्दी", icon: "🇮🇳" },
-  { code: "ta", name: "Tamil", native: "தமிழ்", icon: "🇮🇳" },
-  { code: "te", name: "Telugu", native: "తెలుగు", icon: "🇮🇳" },
-  { code: "bn", name: "Bengali", native: "বাংলা", icon: "🇮🇳" },
-  { code: "mr", name: "Marathi", native: "मराठी", icon: "🇮🇳" },
+  { code: "en" as Language, name: "English", native: "English", icon: "🇬🇧" },
+  { code: "hi" as Language, name: "Hindi", native: "हिन्दी", icon: "🇮🇳" },
+  { code: "ta" as Language, name: "Tamil", native: "தமிழ்", icon: "🇮🇳" },
+  { code: "te" as Language, name: "Telugu", native: "తెలుగు", icon: "🇮🇳" },
+  { code: "bn" as Language, name: "Bengali", native: "বাংলা", icon: "🇮🇳" },
+  { code: "mr" as Language, name: "Marathi", native: "मराठी", icon: "🇮🇳" },
 ];
 
 export function LanguageSelection({ onComplete }: LanguageSelectionProps) {
-  const [selected, setSelected] = useState("en");
+  const { language, setLanguage, t } = useLanguage();
+  const [selected, setSelected] = useState<Language>(language);
 
   return (
     <div className="h-screen w-full bg-background flex flex-col p-6">
       <div className="flex-1 flex flex-col max-w-md mx-auto w-full">
         <div className="text-center mt-12 mb-8">
           <h2 className="text-3xl mb-2 font-semibold">
-            Choose Your Language
+            {t('chooseYourLanguage')}
           </h2>
           <p className="text-muted-foreground">
             अपनी भाषा चुनें | உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்
@@ -59,12 +61,12 @@ export function LanguageSelection({ onComplete }: LanguageSelectionProps) {
 
         <Button
           onClick={() => {
-            try { localStorage.setItem('language', selected); } catch {}
+            setLanguage(selected);
             onComplete();
           }}
           className="w-full h-14 bg-primary hover:bg-primary/90 text-white rounded-2xl mt-6"
         >
-          Continue
+          {t('continue')}
         </Button>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface BudgetBazaarProps {
   onBack: () => void;
@@ -30,6 +31,7 @@ const storeItems: Item[] = [
 ];
 
 export function BudgetBazaar({ onBack }: BudgetBazaarProps) {
+  const { t } = useLanguage();
   const [budget] = useState(5000);
   const [cart, setCart] = useState<Item[]>([]);
   const [showResult, setShowResult] = useState(false);

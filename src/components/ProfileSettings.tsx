@@ -3,12 +3,35 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Switch } from "./ui/switch";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useSupabaseAuth } from "../contexts/SupabaseAuthContext";
+import { useState } from "react";
 
 interface ProfileSettingsProps {
   onBack: () => void;
 }
 
 export function ProfileSettings({ onBack }: ProfileSettingsProps) {
+  const { t, language } = useLanguage();
+  const { user, logout } = useSupabaseAuth();
+  const [darkMode, setDarkMode] = useState(false);
+  const [notifications, setNotifications] = useState(true);
+  const [audioInstructions, setAudioInstructions] = useState(false);
+  
+  const languageNames = {
+    en: 'English',
+    hi: 'हिन्दी',
+    ta: 'தமிழ்',
+    te: 'తెలుగు',
+    bn: 'বাংলা',
+    mr: 'मराठी'
+  };
+  
+  const handleDarkModeToggle = (checked: boolean) => {
+    setDarkMode(checked);
+    document.documentElement.classList.toggle('dark', checked);
+  };
+  
   const achievements = [
     { id: 1, name: "Budget Master", icon: "🏆", unlocked: true },
     { id: 2, name: "Stock Pro", icon: "📈", unlocked: true },
@@ -19,10 +42,10 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
   ];
 
   const stats = [
-    { label: "Total Coins", value: "2,450", icon: "🪙" },
-    { label: "Games Completed", value: "24", icon: "🎮" },
-    { label: "Hours Learned", value: "12.5", icon: "⏱️" },
-    { label: "Current Streak", value: "12 days", icon: "🔥" },
+    { label: t("totalCoins"), value: "2,450", icon: "🪙" },
+    { label: t("gamesCompleted"), value: "24", icon: "🎮" },
+    { label: t("hoursLearned"), value: "12.5", icon: "⏱️" },
+    { label: t("currentStreak"), value: `12 ${t("days")}`, icon: "🔥" },
   ];
 
   return (
@@ -39,12 +62,12 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
         <div className="bg-card rounded-3xl p-6 shadow-lg border border-border">
           <div className="flex items-center gap-4 mb-6">
             <Avatar className="w-20 h-20 border-4 border-white shadow-md">
-              <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" />
+              <AvatarImage src="https://thumbs.dreamstime.com/b/female-avatar-icon-flat-design-style-woman-red-shirt-blue-background-minimal-user-portrait-social-media-interface-401816079.jpg" />
               <AvatarFallback>AR</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="font-semibold">Arjun Reddy</h3>
-              <p className="text-sm text-muted-foreground">arjun@example.com</p>
+              <h3 className="font-semibold">{user?.name || 'User'}</h3>
+              <p className="text-sm text-muted-foreground">{user?.email || 'user@example.com'}</p>
               <Badge className="bg-primary/10 text-primary border-0 mt-2">
                 <Zap className="w-3 h-3 mr-1" />
                 Expert Level
@@ -105,7 +128,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
 
       {/* Settings */}
       <div className="px-6 mb-8">
-        <h3 className="mb-4 font-semibold">Settings</h3>
+        <h3 className="mb-4 font-semibold">{t('settings')}</h3>
         <div className="bg-card rounded-2xl border border-border divide-y divide-border">
           <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
@@ -113,11 +136,11 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
                 <Bell className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p>Notifications</p>
+                <p>{t('notifications')}</p>
                 <p className="text-xs text-muted-foreground">Daily reminders & updates</p>
               </div>
             </div>
-            <Switch defaultChecked />
+            <Switch checked={notifications} onCheckedChange={setNotifications} />
           </div>
 
           <div className="flex items-center justify-between p-4">
@@ -130,7 +153,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
                 <p className="text-xs text-muted-foreground">Voice guidance in games</p>
               </div>
             </div>
-            <Switch />
+            <Switch checked={audioInstructions} onCheckedChange={setAudioInstructions} />
           </div>
 
           <div className="flex items-center justify-between p-4">
@@ -143,7 +166,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
                 <p className="text-xs text-muted-foreground">Switch theme</p>
               </div>
             </div>
-            <Switch />
+            <Switch checked={darkMode} onCheckedChange={handleDarkModeToggle} />
           </div>
 
           <button className="flex items-center justify-between p-4 w-full text-left hover:bg-muted/50 transition-colors">
@@ -152,8 +175,8 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
                 <Globe className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p>Language</p>
-                <p className="text-xs text-muted-foreground">English</p>
+                <p>{t('language')}</p>
+                <p className="text-xs text-muted-foreground">{languageNames[language]}</p>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
@@ -167,7 +190,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
           <button className="flex items-center justify-between p-4 w-full text-left hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-3">
               <Trophy className="w-5 h-5 text-primary" />
-              <p>CA Syllabus Integration</p>
+              <p>{t('caSyllabus')} Integration</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
@@ -175,14 +198,17 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
           <button className="flex items-center justify-between p-4 w-full text-left hover:bg-muted/50 transition-colors">
             <div className="flex items-center gap-3">
               <HelpCircle className="w-5 h-5 text-primary" />
-              <p>Help & Support</p>
+              <p>{t('help')} & {t('support')}</p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
 
-          <button className="flex items-center gap-3 p-4 w-full text-left hover:bg-muted/50 transition-colors text-destructive">
+          <button 
+            onClick={logout}
+            className="flex items-center gap-3 p-4 w-full text-left hover:bg-muted/50 transition-colors text-destructive"
+          >
             <LogOut className="w-5 h-5" />
-            <p>Logout</p>
+            <p>{t('logout')}</p>
           </button>
         </div>
       </div>
@@ -193,7 +219,7 @@ export function ProfileSettings({ onBack }: ProfileSettingsProps) {
           FundaMind v1.0.0
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Learn Money
+          {t('startLearning')}
         </p>
       </div>
     </div>

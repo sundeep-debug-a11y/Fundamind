@@ -6,6 +6,8 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Button } from "./ui/button";
 import { ProgressRing } from "./ProgressRing";
 import { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
+import { useSupabaseAuth } from "../contexts/SupabaseAuthContext";
 
 interface HomeDashboardProps {
   onNavigateToGame: (game: string) => void;
@@ -64,12 +66,23 @@ const finShorts = [
 ];
 
 export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate }: HomeDashboardProps) {
+  const { t } = useLanguage();
+  const { user } = useSupabaseAuth();
   const [activeChip, setActiveChip] = useState('challenge');
   const [showAchievement, setShowAchievement] = useState(true);
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
   const hours = now.getHours();
-  const greeting = hours < 12 ? 'Good Morning' : hours < 18 ? 'Good Afternoon' : 'Good Evening';
+  const greeting = hours < 12 ? t('goodMorning') : hours < 18 ? t('goodAfternoon') : t('goodEvening');
+  
+  // Get first name from full name
+  const firstName = user?.name?.split(' ')[0] || 'User';
+  
+  // Get user initials for avatar
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+  const userInitials = user?.name ? getInitials(user.name) : 'U';
   return (
     <div className="min-h-screen w-full bg-background pb-16">
       {/* Top Bar */}
@@ -86,8 +99,8 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-destructive rounded-full"></span>
           </button>
           <Avatar className="w-8 h-8">
-            <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" />
-            <AvatarFallback>AR</AvatarFallback>
+            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'User'}`} />
+            <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
         </div>
       </div>
@@ -96,8 +109,8 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       <div className="relative z-0 bg-gradient-to-br from-[#1A2332] to-[#006B5E] px-4 pt-8 pb-8 rounded-b-3xl shadow overflow-hidden">
         <div className="mb-2 text-white">
           <p className="text-sm opacity-90">{dateStr}</p>
-          <h2 className="text-2xl mt-1 font-semibold">{greeting}, Arjun</h2>
-          <p className="text-white/80">Your financial learning journey</p>
+          <h2 className="text-2xl mt-1 font-semibold">{greeting}, {firstName}</h2>
+          <p className="text-white/80">{t('trackLearningJourney')}</p>
         </div>
       </div>
 
@@ -108,22 +121,22 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
             <ProgressRing progress={67} size={112} strokeWidth={7} color={"var(--primary)"}>
               <div className="flex flex-col items-center text-center leading-tight max-w-[88px] mx-auto">
                 <div className="text-lg font-semibold">2/3</div>
-                <div className="text-sm text-muted-foreground">Today</div>
-                <div className="w-full text-sm text-muted-foreground mt-0.5 sm:mt-1 break-words">Almost there!</div>
+                <div className="text-sm text-muted-foreground">{t('today')}</div>
+                <div className="w-full text-sm text-muted-foreground mt-0.5 sm:mt-1 break-words">{t('almostThere')}</div>
               </div>
             </ProgressRing>
           </div>
           <div className="flex-1 grid grid-cols-3 gap-3 min-w-0">
             <div className="bg-muted rounded-xl p-3">
-              <div className="text-xs text-muted-foreground">Streak</div>
-              <div className="flex items-center gap-1 mt-1"><Flame className="w-4 h-4 text-alert" /><span className="text-sm font-medium">7 days</span></div>
+              <div className="text-xs text-muted-foreground">{t('streak')}</div>
+              <div className="flex items-center gap-1 mt-1"><Flame className="w-4 h-4 text-alert" /><span className="text-sm font-medium">7 {t('days')}</span></div>
             </div>
             <div className="bg-muted rounded-xl p-3">
-              <div className="text-xs text-muted-foreground">Points</div>
+              <div className="text-xs text-muted-foreground">{t('points')}</div>
               <div className="flex items-center gap-1 mt-1"><Star className="w-4 h-4 text-accent" /><span className="text-sm font-medium">2,450</span></div>
             </div>
             <div className="bg-muted rounded-xl p-3">
-              <div className="text-xs text-muted-foreground">Level</div>
+              <div className="text-xs text-muted-foreground">{t('level')}</div>
               <div className="flex items-center gap-1 mt-1"><TrendingUp className="w-4 h-4 text-info" /><span className="text-sm font-medium">8</span></div>
             </div>
             <div className="col-span-3 mt-1 min-w-0 flex justify-start">
@@ -132,7 +145,7 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
                 className="w-auto rounded-xl h-12 px-6 inline-flex items-center justify-center text-center whitespace-nowrap"
                 onClick={() => onNavigate('learn')}
               >
-                <span className="whitespace-nowrap">Continue Learning</span>
+                <span className="whitespace-nowrap">{t('startLearning')}</span>
               </Button>
             </div>
           </div>
@@ -143,11 +156,11 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       <div className="px-4 mb-6 -mx-4 overflow-x-auto scrollbar-hide">
         <div className="flex gap-2 px-4">
           {[
-            { id: 'challenge', label: 'Daily Challenge', icon: Target },
-            { id: 'stocks', label: 'Stock Market', icon: TrendingUp },
-            { id: 'budget', label: 'Budget Practice', icon: Coins },
-            { id: 'ca', label: 'CA Syllabus', icon: CalendarDays },
-            { id: 'insights', label: 'My Portfolio', icon: BarChart3 },
+            { id: 'challenge', label: t('dailyChallenge'), icon: Target },
+            { id: 'stocks', label: t('stockMarket'), icon: TrendingUp },
+            { id: 'budget', label: t('budgetPractice'), icon: Coins },
+            { id: 'ca', label: t('caSyllabus'), icon: CalendarDays },
+            { id: 'insights', label: t('myPortfolio'), icon: BarChart3 },
           ].map((chip) => (
             <button
               key={chip.id}
@@ -188,9 +201,9 @@ export function HomeDashboard({ onNavigateToGame, onNavigateToVideos, onNavigate
       {/* Your Learning Path */}
       <div className="px-4 mt-4 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Your Learning Path</h3>
+          <h3 className="font-semibold">{t('yourLearningPath')}</h3>
           <button className="text-primary text-sm flex items-center gap-1" onClick={() => onNavigate('games')}>
-            View All
+            {t('viewAll')}
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>

@@ -1,4 +1,5 @@
 import { Home, Gamepad2, BookOpen, BarChart3, User } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -6,12 +7,14 @@ interface BottomNavigationProps {
 }
 
 export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
+  const { t } = useLanguage();
+  
   const tabs = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "games", icon: Gamepad2, label: "Practice" },
-    { id: "learn", icon: BookOpen, label: "Learn" },
-    { id: "insights", icon: BarChart3, label: "Insights" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "home", icon: Home, label: t("home") },
+    { id: "games", icon: Gamepad2, label: t("practice") },
+    { id: "learn", icon: BookOpen, label: t("learn") },
+    { id: "insights", icon: BarChart3, label: t("insights") },
+    { id: "profile", icon: User, label: t("profile") },
   ];
 
   return (

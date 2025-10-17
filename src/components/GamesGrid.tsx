@@ -2,6 +2,7 @@ import { Lock, TrendingUp } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface Game {
   id: string;
@@ -19,100 +20,91 @@ interface GamesGridProps {
   onGameSelect: (gameId: string) => void;
 }
 
-const allGames: Game[] = [
-  {
-    id: "budget-bazaar",
-    title: "Budget Bazaar",
-    subtitle: "Master smart shopping",
-    icon: "🛒",
-    color: "from-orange-400 to-red-500",
-    unlocked: true,
-    progress: 65,
-    difficulty: "Easy",
-    image: "https://images.unsplash.com/photo-1678274324663-afc2c68eeeec?w=400"
-  },
-  {
-    id: "stock-market",
-    title: "Stock Market Simulator",
-    subtitle: "Learn to invest wisely",
-    icon: "📈",
-    color: "from-blue-400 to-indigo-600",
-    unlocked: true,
-    progress: 40,
-    difficulty: "Medium",
-    image: "https://images.unsplash.com/photo-1645226880663-81561dcab0ae?w=400"
-  },
-  {
-    id: "savings-sprout",
-    title: "Savings Sprout",
-    subtitle: "Grow your money tree",
-    icon: "🌱",
-    color: "from-green-400 to-emerald-600",
-    unlocked: true,
-    progress: 80,
-    difficulty: "Easy",
-    image: "https://images.unsplash.com/photo-1579621970590-9d624316904b?w=400"
-  },
-  {
-    id: "credit-card-quest",
-    title: "Credit Card Quest",
-    subtitle: "Build your credit score",
-    icon: "💳",
-    color: "from-purple-400 to-pink-600",
-    unlocked: false,
-    progress: 0,
-    difficulty: "Hard",
-    image: "https://images.unsplash.com/photo-1640545232493-9a9b5c88ede4?w=400"
-  },
-  {
-    id: "tax-explorer",
-    title: "Tax Explorer",
-    subtitle: "Navigate income tax",
-    icon: "📊",
-    color: "from-yellow-400 to-orange-600",
-    unlocked: false,
-    progress: 0,
-    difficulty: "Hard",
-    image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=400"
-  },
-  {
-    id: "insurance-hero",
-    title: "Insurance Hero",
-    subtitle: "Protect what matters",
-    icon: "🛡️",
-    color: "from-cyan-400 to-blue-600",
-    unlocked: false,
-    progress: 0,
-    difficulty: "Medium",
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400"
-  },
-];
-
 export function GamesGrid({ onGameSelect }: GamesGridProps) {
+  const { t } = useLanguage();
+  
+  const allGames: Game[] = [
+    {
+      id: "budget-bazaar",
+      title: t("budgetBazaar"),
+      subtitle: t("masterSmartShopping"),
+      icon: "🛒",
+      color: "from-orange-400 to-red-500",
+      unlocked: true,
+      progress: 65,
+      difficulty: t("easy"),
+      image: "https://images.unsplash.com/photo-1678274324663-afc2c68eeeec?w=400"
+    },
+    {
+      id: "stock-market",
+      title: t("stockMarketSimulator"),
+      subtitle: t("learnToInvestWisely"),
+      icon: "📈",
+      color: "from-blue-400 to-indigo-600",
+      unlocked: true,
+      progress: 40,
+      difficulty: t("medium"),
+      image: "https://images.unsplash.com/photo-1645226880663-81561dcab0ae?w=400"
+    },
+    {
+      id: "savings-sprout",
+      title: t("savingsSprout"),
+      subtitle: t("buildYourSavings"),
+      icon: "🌱",
+      color: "from-green-400 to-emerald-600",
+      unlocked: true,
+      progress: 80,
+      difficulty: t("easy"),
+      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400"
+    },
+    {
+      id: "credit-card-quest",
+      title: t("creditCardQuest"),
+      subtitle: t("understandCreditCards"),
+      icon: "💳",
+      color: "from-purple-400 to-pink-600",
+      unlocked: false,
+      progress: 0,
+      difficulty: t("hard"),
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400"
+    },
+    {
+      id: "insurance-island",
+      title: t("insuranceIsland"),
+      subtitle: t("protectYourFuture"),
+      icon: "🛡️",
+      color: "from-cyan-400 to-blue-600",
+      unlocked: false,
+      progress: 0,
+      difficulty: t("medium"),
+      image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400"
+    },
+  ];
+  
   return (
     <div className="min-h-screen w-full bg-background pt-12 px-4 sm:px-6">
       <div className="mb-4">
         <h2 className="mb-1 font-semibold">
-          Learning Games
+          {t('learningGames')}
         </h2>
         <p className="text-muted-foreground text-sm">
-          Play, learn, and master financial concepts
+          {t('playLearnMaster')}
         </p>
       </div>
 
       {/* Filter Chips */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
         <Badge variant="outline" className="bg-primary text-white border-primary whitespace-nowrap">
-          All Games
+          {t('allGames')}
         </Badge>
         <Badge variant="outline" className="whitespace-nowrap">
-          In Progress
+          {t('inProgress')}
         </Badge>
         <Badge variant="outline" className="whitespace-nowrap">
-          Completed
+          {t('completed')}
         </Badge>
         <Badge variant="outline" className="whitespace-nowrap">
-          Locked
+          {t('locked')}
         </Badge>
       </div>
 
@@ -192,22 +184,22 @@ export function GamesGrid({ onGameSelect }: GamesGridProps) {
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="font-semibold">Learning Path</h4>
-            <p className="text-white/80 text-sm">Your financial journey</p>
+            <h4 className="font-semibold">{t('learningPath')}</h4>
+            <p className="text-white/80 text-sm">{t('yourFinancialJourney')}</p>
           </div>
         </div>
         <p className="text-white/90 text-sm mb-4">
-          Complete games in order to unlock advanced concepts and earn more rewards!
+          {t('completeGamesInOrder')}
         </p>
         <div className="flex gap-2">
           <Badge className="bg-white/20 text-white border-0">
-            ✓ Beginner
+            ✓ {t('beginner')}
           </Badge>
           <Badge className="bg-white/20 text-white border-0">
-            → Learner
+            → {t('learner')}
           </Badge>
-          <Badge className="bg-white/10 text-white/60 border-0">
-            Expert
+          <Badge className="bg-white/20 text-white border-0">
+            {t('expert')}
           </Badge>
         </div>
       </div>

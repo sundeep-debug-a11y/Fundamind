@@ -2,39 +2,41 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { ChevronRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface OnboardingCarouselProps {
   onComplete: () => void;
 }
 
-const slides = [
-  {
-    id: 1,
-    title: "Learn Finance Through Gaming",
-    description: "Make financial literacy fun and engaging with interactive games designed for all ages",
-    image: "https://images.unsplash.com/photo-1559984430-c12e199879b6?w=800",
-    icon: "🎮",
-    color: "from-blue-500 to-indigo-600"
-  },
-  {
-    id: 2,
-    title: "Master Real-World Skills",
-    description: "From budgeting to investing, learn practical skills you can use in daily life",
-    image: "https://images.unsplash.com/flagged/photo-1574097656146-0b43b7660cb6?w=800",
-    icon: "💡",
-    color: "from-green-500 to-emerald-600"
-  },
-  {
-    id: 3,
-    title: "Track Your Progress",
-    description: "Earn coins, unlock achievements, and climb the leaderboard as you learn",
-    image: "https://images.unsplash.com/photo-1551749626-2a2fdb374ee3?w=800",
-    icon: "🏆",
-    color: "from-orange-500 to-red-600"
-  },
-];
-
 export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
+  const { t } = useLanguage();
+  
+  const slides = [
+    {
+      id: 1,
+      title: t('learningGames'),
+      description: t('playLearnMaster'),
+      image: "https://images.unsplash.com/photo-1559984430-c12e199879b6?w=800",
+      icon: "🎮",
+      color: "from-blue-500 to-indigo-600"
+    },
+    {
+      id: 2,
+      title: t('masterFinancialConcepts'),
+      description: t('trackLearningJourney'),
+      image: "https://images.unsplash.com/flagged/photo-1574097656146-0b43b7660cb6?w=800",
+      icon: "💡",
+      color: "from-green-500 to-emerald-600"
+    },
+    {
+      id: 3,
+      title: t('yourInsights'),
+      description: t('recentAchievements'),
+      image: "https://images.unsplash.com/photo-1551749626-2a2fdb374ee3?w=800",
+      icon: "🏆",
+      color: "from-orange-500 to-red-600"
+    },
+  ];
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -57,7 +59,7 @@ export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
       <div className="absolute top-6 right-6 z-10">
         {currentSlide < slides.length - 1 && (
           <button onClick={handleSkip} className="text-muted-foreground">
-            Skip
+            {t('skip')}
           </button>
         )}
       </div>
@@ -110,11 +112,11 @@ export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
         >
           {currentSlide < slides.length - 1 ? (
             <>
-              Next
+              {t('next')}
               <ChevronRight className="ml-2 w-5 h-5" />
             </>
           ) : (
-            "Get Started"
+            t('startLearning')
           )}
         </Button>
       </div>

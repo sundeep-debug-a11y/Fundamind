@@ -1,11 +1,13 @@
 import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface SplashScreenProps {
   onComplete: () => void;
 }
 
 export function SplashScreen({ onComplete }: SplashScreenProps) {
+  const { t } = useLanguage();
   const [logoError, setLogoError] = useState(false);
   const [logoSrc, setLogoSrc] = useState<string>(
     "/fundamind-logo.png/WhatsApp%20Image%202025-10-16%20at%2018.30.14_2027928d.jpg"
@@ -48,7 +50,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </h1>
         
         <p className="text-white/90 text-center max-w-xs mt-2">
-          Learn Money
+          {t('startLearning')}
         </p>
         
         <div className="mt-12 flex gap-1">
