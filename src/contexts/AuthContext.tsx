@@ -43,7 +43,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuthState = async () => {
     try {
-      // Check localStorage for existing user
+      // Initialize with demo user if no users exist
+      const users = JSON.parse(localStorage.getItem('fundamind_users') || '[]');
+      if (users.length === 0) {
+        const demoUser = {
+          id: 'demo-user',
+          name: 'Demo User',
+          email: 'demo@fundamind.com',
+          phone: '+91 9876543210',
+          age: 25,
+          designation: 'Student',
+          createdAt: new Date().toISOString(),
+          password: 'demo123'
+        };
+        localStorage.setItem('fundamind_users', JSON.stringify([demoUser]));
+      }
+
+      // Check localStorage for existing user session
       const savedUser = localStorage.getItem('fundamind_user');
       if (savedUser) {
         const userData = JSON.parse(savedUser);
@@ -68,10 +84,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Check if user exists in localStorage
       const users = JSON.parse(localStorage.getItem('fundamind_users') || '[]');
-      const existingUser = users.find((u: any) => u.email === email && u.password === password);
+      console.log('Available users:', users.map((u: any) => ({ email: u.email, name: u.name })));
+      
+      const existingUser = users.find((u: any) => u.email === email);
       
       if (!existingUser) {
-        throw new Error('Invalid email or password');
+        throw new Error('No account found with this email address');
+      }
+      
+      if (existingUser.password !== password) {
+        throw new Error('Incorrect password');
       }
       
       // Set user (excluding password)
